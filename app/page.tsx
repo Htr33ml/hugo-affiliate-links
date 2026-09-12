@@ -30,6 +30,15 @@ export default function Home() {
         </p>
       </header>
 
+      <a
+        href="https://strava.app.link/JshIIU3y22b"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-6 block w-full border-2 border-black bg-black p-4 text-center font-display text-sm uppercase tracking-widest text-white transition-colors hover:bg-white hover:text-black"
+      >
+        Meus treinos no Strava
+      </a>
+
       {status === 'loading' && <p className="py-10 text-center text-sm">Carregando...</p>}
 
       {status === 'error' && (
