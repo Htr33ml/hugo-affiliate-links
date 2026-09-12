@@ -57,6 +57,22 @@ async function imagemVtex(url: URL): Promise<string | null> {
   return typeof img === 'string' ? img : null
 }
 
+// O AliExpress responde captcha pros IPs da Vercel; o n8n do VPS busca a partir de outro IP
+async function imagemAliexpressViaN8n(link: string): Promise<string | null> {
+  try {
+    const res = await fetch('https://n8n.srv1530017.hstgr.cloud/webhook/afiliados-foto-aliexpress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ link }),
+      signal: AbortSignal.timeout(25000),
+    })
+    const data = await res.json().catch(() => null)
+    return typeof data?.imagem_url === 'string' ? data.imagem_url : null
+  } catch {
+    return null
+  }
+}
+
 async function idAliexpress(url: URL): Promise<string | null> {
   let atual = url.toString()
   for (let i = 0; i < 5; i++) {
@@ -87,7 +103,7 @@ export async function buscarImagem(link: string): Promise<string | null> {
     if (!/^https?:$/.test(url.protocol)) return null
 
     if (/(^|\.)aliexpress\.(com|us)$/.test(url.hostname)) {
-      const img = await imagemAliexpress(url).catch(() => null)
+      const img = (await imagemAliexpressViaN8n(link)) ?? (await imagemAliexpress(url).catch(() => null))
       if (img) return img
     }
 
