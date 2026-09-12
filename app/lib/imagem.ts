@@ -13,7 +13,12 @@ async function get(url: string, init: RequestInit = {}, ua = UA_NAVEGADOR): Prom
     redirect: 'follow',
     signal: AbortSignal.timeout(8000),
     ...init,
-    headers: { 'User-Agent': ua, 'Accept-Language': 'pt-BR,pt;q=0.9', ...init.headers },
+    headers: {
+      'User-Agent': ua,
+      Accept: 'text/html,application/xhtml+xml,*/*;q=0.8',
+      'Accept-Language': 'pt-BR,pt;q=0.9',
+      ...init.headers,
+    },
   })
 }
 
