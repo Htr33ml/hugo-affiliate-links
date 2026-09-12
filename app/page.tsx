@@ -1,15 +1,12 @@
 const BOTOES = [
   { label: 'do Último Vídeo', href: '/ultimo-video' },
   { label: 'dos Comentários', href: '/comentarios' },
-  { label: 'Todos os Produtos', href: '/todos' },
   { label: 'Chineses é aqui 🇨🇳', href: '/todos?c=china' },
-]
-
-const CATEGORIAS = [
   { label: 'Géis', href: '/todos?c=geis' },
   { label: 'Acessórios de corrida', href: '/todos?c=acessorios' },
   { label: 'Suplementos', href: '/todos?c=suplementos' },
   { label: 'Repositor de eletrólito', href: '/todos?c=eletrolitos' },
+  { label: 'Todos os Produtos', href: '/todos' },
 ]
 
 const estiloBotao =
@@ -39,17 +36,6 @@ export default function Home() {
 
       <nav className="space-y-3 py-6">
         {BOTOES.map((b) => (
-          <a key={b.href} href={b.href} className={estiloBotao}>
-            {b.label}
-          </a>
-        ))}
-      </nav>
-
-      <nav className="space-y-3 border-t-2 border-black py-6">
-        <h2 className="mb-1 text-center text-xs uppercase tracking-widest text-neutral-600">
-          Por categoria
-        </h2>
-        {CATEGORIAS.map((b) => (
           <a key={b.href} href={b.href} className={estiloBotao}>
             {b.label}
           </a>
