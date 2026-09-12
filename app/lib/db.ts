@@ -1,8 +1,9 @@
 import Database from 'better-sqlite3'
+import type { Database as BetterSqlite3Database } from 'better-sqlite3'
 import path from 'path'
 
 const dbPath = process.env.DB_PATH || path.join(process.cwd(), 'data.db')
-const db = new Database(dbPath)
+const db: BetterSqlite3Database = new Database(dbPath)
 
 export function initDb() {
   db.exec(`
