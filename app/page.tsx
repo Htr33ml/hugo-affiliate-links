@@ -24,7 +24,7 @@ export default function Home() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-md px-4">
       <header className="border-b-2 border-black py-8 text-center">
-        <h1 className="font-display text-3xl uppercase">Hugo</h1>
+        <h1 className="font-display text-3xl uppercase">HUGO | CORRIDA</h1>
         <p className="mt-2 text-xs uppercase tracking-widest text-neutral-600">
           Produtos que eu recomendo
         </p>

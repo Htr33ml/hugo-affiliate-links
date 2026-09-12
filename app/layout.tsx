@@ -10,7 +10,7 @@ const archivoBlack = Archivo_Black({
 })
 
 export const metadata: Metadata = {
-  title: 'Hugo - Links de Afiliados',
+  title: 'HUGO | CORRIDA',
   description: 'Produtos que eu recomendo',
 }
 
