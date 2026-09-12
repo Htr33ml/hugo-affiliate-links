@@ -42,6 +42,13 @@ export default function Home() {
         meu Strava
       </a>
 
+      <a
+        href="/tenis"
+        className="mt-4 block w-full border-2 border-black bg-white p-4 text-center font-display text-sm uppercase tracking-widest transition-colors hover:bg-black hover:text-white"
+      >
+        Ver Tênis 🇨🇳
+      </a>
+
       {status === 'loading' && <p className="py-10 text-center text-sm">Carregando...</p>}
 
       {status === 'error' && (
