@@ -1,75 +1,64 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ProductCard, type Product } from './components/ProductCard'
+import { ProductCard } from './components/ProductCard'
+import { SECOES, type Product } from './lib/types'
 
 export default function Home() {
-  const [products, setProducts] = useState<Record<string, Product[]>>({
-    ultimo_video: [],
-    comentarios: [],
-    gerais: []
-  })
-  const [loading, setLoading] = useState(true)
+  const [products, setProducts] = useState<Product[]>([])
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
 
   useEffect(() => {
     fetch('/api/products')
-      .then(r => r.json())
-      .then(data => {
-        const grouped: Record<string, Product[]> = { ultimo_video: [], comentarios: [], gerais: [] }
-        data.forEach((p: Product) => {
-          grouped[p.secao as keyof typeof grouped].push(p)
-        })
-        setProducts(grouped)
-        setLoading(false)
+      .then((r) => {
+        if (!r.ok) throw new Error('falhou')
+        return r.json()
       })
+      .then((data: Product[]) => {
+        setProducts(data)
+        setStatus('ready')
+      })
+      .catch(() => setStatus('error'))
   }, [])
 
-  if (loading) return <div className="p-4">Carregando...</div>
-
   return (
-    <div style={{ fontFamily: 'Archivo Black, system-ui, sans-serif' }} className="min-h-screen bg-white">
-      <div className="max-w-md mx-auto p-4">
-        {/* Topo */}
-        <div className="text-center py-6 border-b-2 border-black">
-          <h1 className="text-2xl font-bold">Hugo</h1>
-          <p className="text-xs text-gray-600 mt-1">Produtos que eu recomendo</p>
-        </div>
+    <main className="mx-auto min-h-screen w-full max-w-md px-4">
+      <header className="border-b-2 border-black py-8 text-center">
+        <h1 className="font-display text-3xl uppercase">Hugo</h1>
+        <p className="mt-2 text-xs uppercase tracking-widest text-neutral-600">
+          Produtos que eu recomendo
+        </p>
+      </header>
 
-        {/* Último Vídeo */}
-        {products.ultimo_video.length > 0 && (
-          <section className="py-6">
-            <h2 className="text-sm font-bold mb-4 uppercase tracking-widest">Último Vídeo</h2>
-            {products.ultimo_video.map(p => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </section>
-        )}
+      {status === 'loading' && <p className="py-10 text-center text-sm">Carregando...</p>}
 
-        {/* Comentários */}
-        {products.comentarios.length > 0 && (
-          <section className="py-6">
-            <h2 className="text-sm font-bold mb-4 uppercase tracking-widest">Comentários</h2>
-            {products.comentarios.map(p => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </section>
-        )}
+      {status === 'error' && (
+        <p className="py-10 text-center text-sm">Não deu pra carregar os produtos agora.</p>
+      )}
 
-        {/* Gerais */}
-        {products.gerais.length > 0 && (
-          <section className="py-6">
-            <h2 className="text-sm font-bold mb-4 uppercase tracking-widest">Gerais</h2>
-            {products.gerais.map(p => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </section>
-        )}
+      {status === 'ready' && products.length === 0 && (
+        <p className="py-10 text-center text-sm">Nenhum produto por aqui ainda.</p>
+      )}
 
-        {/* Rodapé */}
-        <div className="py-6 text-center border-t-2 border-black text-xs text-gray-600">
-          <a href="/admin" className="underline">Admin</a>
-        </div>
-      </div>
-    </div>
+      {status === 'ready' &&
+        SECOES.map(({ value, label }) => {
+          const items = products.filter((p) => p.secao === value)
+          if (items.length === 0) return null
+          return (
+            <section key={value} className="py-6">
+              <h2 className="mb-4 font-display text-xs uppercase tracking-[0.2em]">{label}</h2>
+              {items.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </section>
+          )
+        })}
+
+      <footer className="border-t-2 border-black py-6 text-center">
+        <a href="/admin" className="text-xs uppercase tracking-widest underline">
+          Admin
+        </a>
+      </footer>
+    </main>
   )
 }

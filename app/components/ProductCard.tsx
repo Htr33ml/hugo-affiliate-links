@@ -1,37 +1,25 @@
-export interface Product {
-  id: number
-  nome: string
-  link_afiliado: string
-  secao: 'ultimo_video' | 'comentarios' | 'gerais'
-  clicks?: number
-}
+'use client'
 
-interface ProductCardProps {
-  product: Product
-}
+import type { Product } from '../lib/types'
 
-export function ProductCard({ product }: ProductCardProps) {
-  const handleClick = async () => {
-    // Registra clique e redireciona
-    await fetch('/api/clicks', {
+export function ProductCard({ product }: { product: Product }) {
+  const track = () => {
+    fetch('/api/clicks', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ product_id: product.id }),
-      headers: { 'Content-Type': 'application/json' }
+      keepalive: true,
     }).catch(() => {})
-    
-    window.location.href = product.link_afiliado
   }
 
   return (
-    <button
-      onClick={handleClick}
-      className="w-full p-4 mb-3 text-left bg-white border-2 border-black hover:bg-gray-50 transition-all"
-      style={{ fontFamily: 'Archivo Black, sans-serif' }}
+    <a
+      href={product.link_afiliado}
+      onClick={track}
+      rel="noopener noreferrer sponsored"
+      className="mb-3 block w-full border-2 border-black bg-white p-4 font-display text-lg uppercase leading-tight transition-colors hover:bg-black hover:text-white"
     >
-      <div className="text-lg font-bold">{product.nome}</div>
-      {product.clicks !== undefined && (
-        <div className="text-xs text-gray-600 mt-1">{product.clicks} cliques</div>
-      )}
-    </button>
+      {product.nome}
+    </a>
   )
 }

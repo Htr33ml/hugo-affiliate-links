@@ -1,54 +1,68 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db, { initDb } from '@/app/lib/db'
+import { query } from '@/app/lib/db'
+import { isAuthorized } from '@/app/lib/auth'
+import { isSecao, type Product } from '@/app/lib/types'
 
-initDb()
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
-    const stmt = db.prepare('SELECT id, nome, link_afiliado, secao FROM products ORDER BY secao, ordem')
-    const products = stmt.all()
-    return NextResponse.json(products)
+    const { rows } = await query<Product>(
+      'SELECT id, nome, link_afiliado, secao FROM products ORDER BY secao, ordem, id',
+    )
+    return NextResponse.json(rows)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
+    console.error('GET /api/products', error)
+    return NextResponse.json({ error: 'Falha ao carregar produtos' }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
+  if (!isAuthorized(req.headers.get('Authorization'))) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  }
+
   try {
-    const auth = req.headers.get('Authorization')
-    if (auth !== `Bearer ${process.env.ADMIN_PASSWORD}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const body = await req.json().catch(() => null)
+    const nome = typeof body?.nome === 'string' ? body.nome.trim() : ''
+    const link = typeof body?.link_afiliado === 'string' ? body.link_afiliado.trim() : ''
+    const secao = body?.secao
+
+    if (!nome || !link) {
+      return NextResponse.json({ error: 'Preencha nome e link' }, { status: 400 })
+    }
+    if (!isSecao(secao)) {
+      return NextResponse.json({ error: 'Seção inválida' }, { status: 400 })
     }
 
-    const { nome, link_afiliado, secao } = await req.json()
-    if (!nome || !link_afiliado || !secao) {
-      return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
-    }
-
-    const stmt = db.prepare(
-      'INSERT INTO products (nome, link_afiliado, secao) VALUES (?, ?, ?)'
+    const { rows } = await query<{ id: number }>(
+      'INSERT INTO products (nome, link_afiliado, secao) VALUES ($1, $2, $3) RETURNING id',
+      [nome, link, secao],
     )
-    const result = stmt.run(nome, link_afiliado, secao)
-    
-    return NextResponse.json({ id: result.lastInsertRowid })
+    return NextResponse.json({ id: rows[0].id })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
+    console.error('POST /api/products', error)
+    return NextResponse.json({ error: 'Falha ao criar produto' }, { status: 500 })
   }
 }
 
 export async function DELETE(req: NextRequest) {
+  if (!isAuthorized(req.headers.get('Authorization'))) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  }
+
   try {
-    const auth = req.headers.get('Authorization')
-    if (auth !== `Bearer ${process.env.ADMIN_PASSWORD}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const body = await req.json().catch(() => null)
+    const id = Number(body?.id)
+    if (!Number.isInteger(id)) {
+      return NextResponse.json({ error: 'ID inválido' }, { status: 400 })
     }
 
-    const { id } = await req.json()
-    const stmt = db.prepare('DELETE FROM products WHERE id = ?')
-    stmt.run(id)
-    
+    await query('DELETE FROM products WHERE id = $1', [id])
     return NextResponse.json({ ok: true })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 })
+    console.error('DELETE /api/products', error)
+    return NextResponse.json({ error: 'Falha ao deletar produto' }, { status: 500 })
   }
 }
