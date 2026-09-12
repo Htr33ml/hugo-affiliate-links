@@ -1,9 +1,5 @@
 {
   "name": "hugo-affiliate-links",
   "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "env": {
-    "ADMIN_PASSWORD": "@admin_password",
-    "NEXT_PUBLIC_ADMIN_PASSWORD": "@admin_password"
-  }
+  "outputDirectory": ".next"
 }
