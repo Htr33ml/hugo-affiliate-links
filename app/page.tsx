@@ -1,25 +1,10 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { ProductCard } from './components/ProductCard'
-import { SECOES, type Product } from './lib/types'
-
 export default function Home() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
-
-  useEffect(() => {
-    fetch('/api/products')
-      .then((r) => {
-        if (!r.ok) throw new Error('falhou')
-        return r.json()
-      })
-      .then((data: Product[]) => {
-        setProducts(data)
-        setStatus('ready')
-      })
-      .catch(() => setStatus('error'))
-  }, [])
+  const sections = [
+    { label: 'do Último Vídeo', href: '/ultimo-video' },
+    { label: 'dos Comentários', href: '/comentarios' },
+    { label: 'Todos os Produtos', href: '/todos' },
+    { label: 'Chineses é aqui', href: '/tenis' },
+  ]
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-md px-4">
@@ -42,36 +27,17 @@ export default function Home() {
         meu Strava
       </a>
 
-      <a
-        href="/tenis"
-        className="mt-4 block w-full border-2 border-black bg-white p-4 text-center font-display text-sm uppercase tracking-widest transition-colors hover:bg-black hover:text-white"
-      >
-        Ver Tênis 🇨🇳
-      </a>
-
-      {status === 'loading' && <p className="py-10 text-center text-sm">Carregando...</p>}
-
-      {status === 'error' && (
-        <p className="py-10 text-center text-sm">Não deu pra carregar os produtos agora.</p>
-      )}
-
-      {status === 'ready' && products.length === 0 && (
-        <p className="py-10 text-center text-sm">Nenhum produto por aqui ainda.</p>
-      )}
-
-      {status === 'ready' &&
-        SECOES.map(({ value, label }) => {
-          const items = products.filter((p) => p.secao === value)
-          if (items.length === 0) return null
-          return (
-            <section key={value} className="py-6">
-              <h2 className="mb-4 font-display text-xs uppercase tracking-[0.2em]">{label}</h2>
-              {items.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
-            </section>
-          )
-        })}
+      <section className="space-y-3 py-6">
+        {sections.map((section) => (
+          <a
+            key={section.href}
+            href={section.href}
+            className="block w-full border-2 border-black bg-white p-4 text-center font-display text-sm uppercase tracking-widest transition-colors hover:bg-black hover:text-white"
+          >
+            {section.label}
+          </a>
+        ))}
+      </section>
 
       <footer className="border-t-2 border-black py-8 text-center">
         <p className="text-xs tracking-widest text-neutral-600">

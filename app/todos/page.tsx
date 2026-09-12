@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { ProductGridCard } from '../components/ProductGridCard'
 import type { Product } from '../lib/types'
 
-export default function TenisPage() {
-  const [shoes, setShoes] = useState<Product[]>([])
+export default function TodosPage() {
+  const [products, setProducts] = useState<Product[]>([])
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
 
   useEffect(() => {
@@ -15,8 +15,8 @@ export default function TenisPage() {
         return r.json()
       })
       .then((data: Product[]) => {
-        const aliexpressShoes = data.filter((p) => p.link_afiliado.includes('aliexpress'))
-        setShoes(aliexpressShoes)
+        const filtered = data.filter((p) => p.secao === 'gerais')
+        setProducts(filtered)
         setStatus('ready')
       })
       .catch(() => setStatus('error'))
@@ -25,26 +25,23 @@ export default function TenisPage() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-md px-4">
       <header className="border-b-2 border-black py-8 text-center">
-        <h1 className="font-display text-3xl uppercase">Tênis 🇨🇳</h1>
-        <p className="mt-2 text-xs tracking-widest text-neutral-600">
-          Os melhores da China direto pra casa
-        </p>
+        <h1 className="font-display text-3xl uppercase">Todos os Produtos</h1>
       </header>
 
       {status === 'loading' && <p className="py-10 text-center text-sm">Carregando...</p>}
 
       {status === 'error' && (
-        <p className="py-10 text-center text-sm">Não deu pra carregar os tênis agora.</p>
+        <p className="py-10 text-center text-sm">Não deu pra carregar agora.</p>
       )}
 
-      {status === 'ready' && shoes.length === 0 && (
-        <p className="py-10 text-center text-sm">Nenhum tênis por aqui ainda.</p>
+      {status === 'ready' && products.length === 0 && (
+        <p className="py-10 text-center text-sm">Nenhum produto por aqui ainda.</p>
       )}
 
-      {status === 'ready' && shoes.length > 0 && (
+      {status === 'ready' && products.length > 0 && (
         <section className="grid grid-cols-2 gap-4 py-6">
-          {shoes.map((p) => (
-            <ProductGridCard key={p.id} product={p} showFlag={true} />
+          {products.map((p) => (
+            <ProductGridCard key={p.id} product={p} />
           ))}
         </section>
       )}

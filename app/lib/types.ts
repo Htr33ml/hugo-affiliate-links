@@ -4,6 +4,7 @@ export interface Product {
   id: number
   nome: string
   link_afiliado: string
+  imagem_url?: string
   secao: Secao
 }
 
