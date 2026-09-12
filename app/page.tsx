@@ -66,10 +66,10 @@ export default function Home() {
           )
         })}
 
-      <footer className="border-t-2 border-black py-6 text-center">
-        <a href="/admin" className="text-xs uppercase tracking-widest underline">
-          Admin
-        </a>
+      <footer className="border-t-2 border-black py-8 text-center">
+        <p className="font-display text-sm leading-relaxed">
+          corrida TRU, sem MIMIMI, SIGA Hugo Tremmel
+        </p>
       </footer>
     </main>
   )
