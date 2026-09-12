@@ -1,11 +1,21 @@
-export default function Home() {
-  const sections = [
-    { label: 'do Último Vídeo', href: '/ultimo-video' },
-    { label: 'dos Comentários', href: '/comentarios' },
-    { label: 'Todos os Produtos', href: '/todos' },
-    { label: 'Chineses é aqui', href: '/tenis' },
-  ]
+const BOTOES = [
+  { label: 'do Último Vídeo', href: '/ultimo-video' },
+  { label: 'dos Comentários', href: '/comentarios' },
+  { label: 'Todos os Produtos', href: '/todos' },
+  { label: 'Chineses é aqui 🇨🇳', href: '/todos?c=china' },
+]
 
+const CATEGORIAS = [
+  { label: 'Géis', href: '/todos?c=geis' },
+  { label: 'Acessórios de corrida', href: '/todos?c=acessorios' },
+  { label: 'Suplementos', href: '/todos?c=suplementos' },
+  { label: 'Repositor de eletrólito', href: '/todos?c=eletrolitos' },
+]
+
+const estiloBotao =
+  'block w-full border-2 border-black bg-white p-4 text-center font-display text-sm uppercase tracking-widest transition-colors hover:bg-black hover:text-white'
+
+export default function Home() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-md px-4">
       <header className="border-b-2 border-black py-8 text-center">
@@ -27,17 +37,24 @@ export default function Home() {
         meu Strava
       </a>
 
-      <section className="space-y-3 py-6">
-        {sections.map((section) => (
-          <a
-            key={section.href}
-            href={section.href}
-            className="block w-full border-2 border-black bg-white p-4 text-center font-display text-sm uppercase tracking-widest transition-colors hover:bg-black hover:text-white"
-          >
-            {section.label}
+      <nav className="space-y-3 py-6">
+        {BOTOES.map((b) => (
+          <a key={b.href} href={b.href} className={estiloBotao}>
+            {b.label}
           </a>
         ))}
-      </section>
+      </nav>
+
+      <nav className="space-y-3 border-t-2 border-black py-6">
+        <h2 className="mb-1 text-center text-xs uppercase tracking-widest text-neutral-600">
+          Por categoria
+        </h2>
+        {CATEGORIAS.map((b) => (
+          <a key={b.href} href={b.href} className={estiloBotao}>
+            {b.label}
+          </a>
+        ))}
+      </nav>
 
       <footer className="border-t-2 border-black py-8 text-center">
         <p className="text-xs tracking-widest text-neutral-600">

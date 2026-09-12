@@ -25,14 +25,14 @@ const SCHEMA = `
     id SERIAL PRIMARY KEY,
     nome TEXT NOT NULL,
     link_afiliado TEXT NOT NULL,
-    imagem_url TEXT,
     secao TEXT NOT NULL CHECK (secao IN ('ultimo_video', 'comentarios', 'gerais')),
     ordem INTEGER NOT NULL DEFAULT 0,
     criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
   );
 
-  ALTER TABLE IF EXISTS products
-  ADD COLUMN IF NOT EXISTS imagem_url TEXT;
+  ALTER TABLE products ADD COLUMN IF NOT EXISTS imagem_url TEXT;
+  ALTER TABLE products ADD COLUMN IF NOT EXISTS imagem_data TEXT;
+  ALTER TABLE products ADD COLUMN IF NOT EXISTS categoria TEXT;
 
   CREATE TABLE IF NOT EXISTS clicks (
     id SERIAL PRIMARY KEY,
