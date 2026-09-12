@@ -1,12 +1,19 @@
-const UA =
+const UA_NAVEGADOR =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'
 
-async function get(url: string, init: RequestInit = {}): Promise<Response> {
+// AliExpress manda captcha pra "navegador" vindo de datacenter (Vercel), mas libera os robôs de preview de link
+const UAS_PAGINA = [
+  UA_NAVEGADOR,
+  'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
+  'WhatsApp/2.23.20.0',
+]
+
+async function get(url: string, init: RequestInit = {}, ua = UA_NAVEGADOR): Promise<Response> {
   return fetch(url, {
     redirect: 'follow',
     signal: AbortSignal.timeout(8000),
     ...init,
-    headers: { 'User-Agent': UA, 'Accept-Language': 'pt-BR,pt;q=0.9', ...init.headers },
+    headers: { 'User-Agent': ua, 'Accept-Language': 'pt-BR,pt;q=0.9', ...init.headers },
   })
 }
 
@@ -56,13 +63,17 @@ export async function buscarImagem(link: string): Promise<string | null> {
       url = new URL(destino)
     }
 
-    const res = await get(url.toString())
-    const final = new URL(res.url || url.toString())
-    const html = res.ok ? await res.text() : ''
-    const meta = metaImagem(html)
-    if (meta) return new URL(meta, final).toString()
-
-    return await imagemVtex(final)
+    let final = url
+    for (const ua of UAS_PAGINA) {
+      const res = await get(url.toString(), {}, ua).catch(() => null)
+      if (!res) continue
+      final = new URL(res.url || url.toString())
+      const meta = metaImagem(res.ok ? await res.text() : '')
+      if (meta) return new URL(meta, final).toString()
+      const vtex = await imagemVtex(final).catch(() => null)
+      if (vtex) return vtex
+    }
+    return null
   } catch {
     return null
   }
