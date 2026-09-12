@@ -15,7 +15,7 @@ export default function Home() {
     fetch('/api/products')
       .then(r => r.json())
       .then(data => {
-        const grouped = { ultimo_video: [], comentarios: [], gerais: [] }
+        const grouped: Record<string, Product[]> = { ultimo_video: [], comentarios: [], gerais: [] }
         data.forEach((p: Product) => {
           grouped[p.secao as keyof typeof grouped].push(p)
         })
