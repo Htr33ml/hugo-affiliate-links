@@ -67,7 +67,7 @@ export default function Home() {
         })}
 
       <footer className="border-t-2 border-black py-8 text-center">
-        <p className="font-display text-sm leading-relaxed">
+        <p className="text-xs tracking-widest text-neutral-600">
           corrida TRU, sem MIMIMI, SIGA Hugo Tremmel
         </p>
       </footer>
