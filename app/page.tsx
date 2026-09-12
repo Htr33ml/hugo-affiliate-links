@@ -34,9 +34,12 @@ export default function Home() {
         href="https://strava.app.link/JshIIU3y22b"
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-6 block w-full border-2 border-black bg-black p-4 text-center font-display text-sm uppercase tracking-widest text-white transition-colors hover:bg-white hover:text-black"
+        className="mt-6 flex w-full items-center justify-center gap-3 border-2 border-black bg-black p-4 font-display text-base text-white transition-colors hover:bg-white hover:text-black"
       >
-        Meus treinos no Strava
+        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 shrink-0 fill-current">
+          <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
+        </svg>
+        meu Strava, segue aee
       </a>
 
       {status === 'loading' && <p className="py-10 text-center text-sm">Carregando...</p>}
