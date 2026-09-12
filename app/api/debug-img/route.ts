@@ -17,5 +17,5 @@ const LINKS = [
 export async function GET() {
   const t = Date.now()
   const out = await Promise.all(LINKS.map(async (l) => ({ l, img: await buscarImagem(l) })))
-  return NextResponse.json({ v: 2, ms: Date.now() - t, out })
+  return NextResponse.json({ v: 3, ms: Date.now() - t, out })
 }

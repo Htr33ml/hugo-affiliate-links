@@ -52,10 +52,39 @@ async function imagemVtex(url: URL): Promise<string | null> {
   return typeof img === 'string' ? img : null
 }
 
+async function idAliexpress(url: URL): Promise<string | null> {
+  let atual = url.toString()
+  for (let i = 0; i < 5; i++) {
+    const id = atual.match(/\/item\/(\d+)\.html/)?.[1] ?? atual.match(/[?&]productIds?=(\d+)/)?.[1]
+    if (id) return id
+    const res = await get(atual, { redirect: 'manual' })
+    const location = res.headers.get('location')
+    if (!location) return null
+    atual = new URL(location, atual).toString()
+  }
+  return null
+}
+
+async function imagemAliexpress(url: URL): Promise<string | null> {
+  const id = await idAliexpress(url)
+  if (!id) return null
+  for (const ua of UAS_PAGINA.slice(1)) {
+    const res = await get(`https://pt.aliexpress.com/item/${id}.html`, {}, ua).catch(() => null)
+    const meta = res?.ok ? metaImagem(await res.text()) : null
+    if (meta) return meta
+  }
+  return null
+}
+
 export async function buscarImagem(link: string): Promise<string | null> {
   try {
     let url = new URL(link)
     if (!/^https?:$/.test(url.protocol)) return null
+
+    if (/(^|\.)aliexpress\.(com|us)$/.test(url.hostname)) {
+      const img = await imagemAliexpress(url).catch(() => null)
+      if (img) return img
+    }
 
     if (url.hostname.endsWith('mais.app')) {
       const destino = await resolverMaisApp(url)
