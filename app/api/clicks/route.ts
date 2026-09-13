@@ -32,8 +32,13 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const { rows } = await query<{ id: number; nome: string; clicks: number }>(`
-      SELECT p.id, p.nome, COUNT(c.id)::int AS clicks
+    const { rows } = await query<{ id: number; nome: string; clicks: number; clicks_7d: number; clicks_hoje: number }>(`
+      SELECT p.id, p.nome,
+        COUNT(c.id)::int AS clicks,
+        COUNT(c.id) FILTER (WHERE c.criado_em >= NOW() - INTERVAL '7 days')::int AS clicks_7d,
+        COUNT(c.id) FILTER (
+          WHERE c.criado_em >= date_trunc('day', NOW() AT TIME ZONE 'America/Sao_Paulo') AT TIME ZONE 'America/Sao_Paulo'
+        )::int AS clicks_hoje
       FROM products p
       LEFT JOIN clicks c ON c.product_id = p.id
       GROUP BY p.id, p.nome

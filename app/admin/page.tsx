@@ -12,6 +12,14 @@ interface Form {
   imagem_data: string
 }
 
+interface Analytics {
+  id: number
+  nome: string
+  clicks: number
+  clicks_7d: number
+  clicks_hoje: number
+}
+
 const FORM_VAZIO: Form = {
   nome: '',
   link_afiliado: '',
@@ -56,7 +64,8 @@ export default function AdminPage() {
   const [password, setPassword] = useState('')
   const [authed, setAuthed] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
-  const [clicks, setClicks] = useState<Record<number, number>>({})
+  const [analytics, setAnalytics] = useState<Analytics[]>([])
+  const [periodo, setPeriodo] = useState<'clicks' | 'clicks_7d' | 'clicks_hoje'>('clicks')
   const [form, setForm] = useState<Form>(FORM_VAZIO)
   const [busy, setBusy] = useState(false)
   const [ocupados, setOcupados] = useState<Record<number, boolean>>({})
@@ -75,10 +84,7 @@ export default function AdminPage() {
   const loadData = async () => {
     const [pRes, aRes] = await Promise.all([fetch('/api/products'), api('GET', '/api/clicks')])
     if (pRes.ok) setProducts(await pRes.json())
-    if (aRes.ok) {
-      const rows: { id: number; clicks: number }[] = await aRes.json()
-      setClicks(Object.fromEntries(rows.map((r) => [r.id, r.clicks])))
-    }
+    if (aRes.ok) setAnalytics(await aRes.json())
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -184,6 +190,10 @@ export default function AdminPage() {
 
   const fotoPreview = form.imagem_data || form.imagem_url || null
   const semFoto = products.filter((p) => !p.imagem_url).length
+  const clicksPorId = Object.fromEntries(analytics.map((a) => [a.id, a.clicks]))
+  const soma = (campo: keyof Omit<Analytics, 'id' | 'nome'>) => analytics.reduce((t, a) => t + a[campo], 0)
+  const ranking = [...analytics].sort((a, b) => b[periodo] - a[periodo]).filter((a) => a[periodo] > 0)
+  const maior = ranking[0]?.[periodo] ?? 0
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-2xl px-4">
@@ -201,6 +211,47 @@ export default function AdminPage() {
       </div>
 
       {msg && <p className="mb-4 border-2 border-black p-3 text-sm">{msg}</p>}
+
+      <section className="mb-6 border-2 border-black p-4">
+        <h2 className="mb-4 font-display text-sm uppercase tracking-widest">Cliques</h2>
+        <div className="mb-4 grid grid-cols-3 gap-2">
+          {(
+            [
+              ['clicks_hoje', 'Hoje'],
+              ['clicks_7d', '7 dias'],
+              ['clicks', 'Total'],
+            ] as const
+          ).map(([campo, label]) => (
+            <button
+              key={campo}
+              onClick={() => setPeriodo(campo)}
+              className={`border-2 border-black p-3 text-center ${periodo === campo ? 'bg-black text-white' : 'bg-white'}`}
+            >
+              <div className="font-display text-2xl">{soma(campo)}</div>
+              <div className="text-xs uppercase tracking-widest">{label}</div>
+            </button>
+          ))}
+        </div>
+        {ranking.length === 0 ? (
+          <p className="text-sm">Sem cliques nesse período.</p>
+        ) : (
+          <div className="space-y-3">
+            {ranking.map((item, i) => (
+              <div key={item.id}>
+                <div className="flex justify-between gap-3 text-sm">
+                  <span className="truncate">
+                    {i + 1}. {item.nome}
+                  </span>
+                  <span className="shrink-0 font-display">{item[periodo]}</span>
+                </div>
+                <div className="mt-1 h-2 w-full border border-black">
+                  <div className="h-full bg-black" style={{ width: `${(item[periodo] / maior) * 100}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       <section className="mb-6 border-2 border-black p-4">
         <h2 className="mb-4 font-display text-sm uppercase tracking-widest">Adicionar Produto</h2>
@@ -317,7 +368,7 @@ export default function AdminPage() {
                   <Miniatura src={p.imagem_url} tamanho="h-16 w-16" />
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-display uppercase">{p.nome}</div>
-                    <div className="text-xs text-neutral-600">{clicks[p.id] ?? 0} cliques</div>
+                    <div className="text-xs text-neutral-600">{clicksPorId[p.id] ?? 0} cliques</div>
                   </div>
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-2">
